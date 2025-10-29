@@ -1,31 +1,32 @@
 {
-    "name": "interactive-network-summarized",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "devDependencies": {
-        "@tailwindcss/typography": "^0.5.19",
-        "@tailwindcss/vite": "^4.1.16",
-        "@types/react": "^19.2.2",
-        "@types/react-dom": "^19.2.2",
-        "@vitejs/plugin-react-swc": "^4.2.0",
-        "pdf-parse": "^2.4.5",
-        "tailwindcss": "^4.1.16",
-        "typescript": "~5.9.3",
-        "vite": "^7.1.7"
-    },
-    "dependencies": {
-        "mermaid": "^11.12.1",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0",
-        "react-markdown": "^10.1.0",
-        "react-router-dom": "^7.9.4",
-        "remark-gfm": "^4.0.1"
-    },
-    "scripts": {
-        "dev": "vite",
-        "build": "tsc && vite build",
-        "preview": "vite preview",
-        "summarize": "node scripts/summarize-pdfs.mjs"
-    }
+    "name":  "interactive-network-summarized",
+    "private":  true,
+    "version":  "0.0.0",
+    "type":  "module",
+    "devDependencies":  {
+                            "@tailwindcss/typography":  "^0.5.19",
+                            "@tailwindcss/vite":  "^4.1.16",
+                            "@types/react":  "^19.2.2",
+                            "@types/react-dom":  "^19.2.2",
+                            "@vitejs/plugin-react-swc":  "^4.2.0",
+                            "pdf-parse":  "^2.4.5",
+                            "tailwindcss":  "^4.1.16",
+                            "typescript":  "~5.9.3",
+                            "vite":  "^7.1.7"
+                        },
+    "dependencies":  {
+                         "mermaid":  "^11.12.1",
+                         "react":  "^19.2.0",
+                         "react-dom":  "^19.2.0",
+                         "react-markdown":  "^10.1.0",
+                         "react-router-dom":  "^7.9.4",
+                         "remark-gfm":  "^4.0.1"
+                     },
+    "scripts":  {
+                    "dev":  "vite",
+                    "build":  "tsc \u0026\u0026 vite build",
+                    "preview":  "vite preview",
+                    "summarize":  "node scripts/summarize-pdfs.mjs",
+                    "extract:finale":  "node scripts/extract-finale.mjs"
+                }
 }
