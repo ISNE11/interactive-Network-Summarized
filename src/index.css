@@ -1,2 +1,11 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* App theme tweaks */
+@theme {
+  --color-brand: #4f46e5; /* indigo-600 */
+}
+
+/* Utility: gradient header background helper */
+.bg-brand-gradient { @apply bg-gradient-to-r from-indigo-600 to-violet-600; }
 
