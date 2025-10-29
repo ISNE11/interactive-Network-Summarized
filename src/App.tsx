@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import Home from './pages/Home'
 import Learn from './pages/Learn'
+import QuizPage from './pages/Quiz'
 import Labs from './pages/Labs'
 import Commands from './pages/Commands'
 
@@ -14,6 +15,7 @@ export default function App() {
             <nav className="flex gap-4 text-sm">
               <NavLink to="/" end className={({isActive})=>`px-2 py-1 rounded ${isActive? 'bg-slate-900 text-white':'text-slate-700 hover:bg-slate-100'}`}>Home</NavLink>
               <NavLink to="/learn" className={({isActive})=>`px-2 py-1 rounded ${isActive? 'bg-slate-900 text-white':'text-slate-700 hover:bg-slate-100'}`}>Learn</NavLink>
+              <NavLink to="/quiz" className={({isActive})=>`px-2 py-1 rounded ${isActive? 'bg-slate-900 text-white':'text-slate-700 hover:bg-slate-100'}`}>Quiz</NavLink>
               <NavLink to="/labs" className={({isActive})=>`px-2 py-1 rounded ${isActive? 'bg-slate-900 text-white':'text-slate-700 hover:bg-slate-100'}`}>Labs</NavLink>
               <NavLink to="/commands" className={({isActive})=>`px-2 py-1 rounded ${isActive? 'bg-slate-900 text-white':'text-slate-700 hover:bg-slate-100'}`}>Commands</NavLink>
             </nav>
@@ -23,6 +25,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/learn" element={<Learn />} />
+            <Route path="/quiz" element={<QuizPage />} />
             <Route path="/labs" element={<Labs />} />
             <Route path="/commands" element={<Commands />} />
           </Routes>
