@@ -15,6 +15,43 @@ export const commands: CommandGroup[] = [
     ],
   },
   {
+    title: 'IPv6 Basics',
+    items: [
+      { cmd: 'ipv6 unicast-routing', description: 'Enable IPv6 forwarding (global)' },
+      { cmd: 'interface vlan 10', description: 'Enter SVI for VLAN 10' },
+      { cmd: 'ipv6 address 2001:db8:10::1/64', description: 'Assign IPv6 address to SVI' },
+      { cmd: 'ipv6 nd ra suppress', description: 'Optional: suppress RAs on certain interfaces' },
+    ],
+  },
+  {
+    title: 'OSPFv3 (IPv6)',
+    items: [
+      { cmd: 'ipv6 router ospf 1', description: 'Create OSPFv3 process 1' },
+      { cmd: 'router-id 1.1.1.1', description: 'Set router ID (required)' },
+      { cmd: 'interface vlan 10', description: 'Enter participating interface' },
+      { cmd: 'ipv6 ospf 1 area 0', description: 'Enable OSPFv3 on interface, area 0' },
+    ],
+  },
+  {
+    title: 'HSRP (IPv6)',
+    items: [
+      { cmd: 'interface vlan 10', description: 'Work under the SVI' },
+      { cmd: 'standby 1 ipv6 2001:db8:10::1', description: 'Virtual IPv6 gateway address' },
+      { cmd: 'standby 1 priority 110', description: 'Prefer this router' },
+      { cmd: 'standby 1 preempt', description: 'Allow higher priority to take over' },
+    ],
+  },
+  {
+    title: 'IPv6 ACLs',
+    items: [
+      { cmd: 'ipv6 access-list V6-MGMT', description: 'Create IPv6 ACL' },
+      { cmd: ' permit tcp 2001:db8:10::/64 any eq 22', description: 'Example permit rule' },
+      { cmd: ' deny ipv6 any any', description: 'Deny everything else' },
+      { cmd: 'interface vlan 10', description: 'Apply on interface' },
+      { cmd: ' ipv6 traffic-filter V6-MGMT in', description: 'Ingress filter' },
+    ],
+  },
+  {
     title: 'Inter-VLAN Routing (MLS)',
     items: [
       { cmd: 'interface vlan 10', description: 'Create SVI for VLAN 10' },
@@ -75,4 +112,3 @@ export const commands: CommandGroup[] = [
     ],
   },
 ]
-

@@ -45,9 +45,15 @@ export default function Learn() {
         <>
           <div className="grid gap-4 md:grid-cols-2">
             {filtered.map((t) => (
-              <article key={t.id} className="rounded-lg border bg-white p-4 shadow-sm">
-                <h2 className="text-lg font-semibold">{t.title}</h2>
-                <p className="mt-1 text-sm text-slate-600">{t.summary}</p>
+              <details key={t.id} className="group rounded-lg border bg-white p-4 shadow-sm open:shadow" open={Boolean(query)}>
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900">{t.title}</h2>
+                    <p className="mt-1 text-sm text-slate-600">{t.summary}</p>
+                  </div>
+                  <span className="mt-1 select-none rounded bg-sky-50 px-2 py-1 text-xs text-sky-700 ring-1 ring-sky-200 group-open:hidden">Expand</span>
+                  <span className="mt-1 hidden select-none rounded bg-sky-50 px-2 py-1 text-xs text-sky-700 ring-1 ring-sky-200 group-open:inline">Collapse</span>
+                </summary>
                 <div className="prose prose-slate mt-3 max-w-none">
                   <MarkdownWithMermaid content={t.markdown} />
                 </div>
@@ -61,7 +67,7 @@ export default function Learn() {
                     </div>
                   </div>
                 )}
-              </article>
+              </details>
             ))}
           </div>
           {filtered.length === 0 && (

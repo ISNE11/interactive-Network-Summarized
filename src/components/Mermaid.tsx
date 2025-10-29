@@ -4,6 +4,8 @@ import mermaid from 'mermaid'
 // Light blue theme for better readability
 mermaid.initialize({
   startOnLoad: false,
+  securityLevel: 'loose',
+  deterministicIds: true,
   theme: 'base',
   themeVariables: {
     fontFamily: 'ui-sans-serif, system-ui, sans-serif',

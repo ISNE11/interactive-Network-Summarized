@@ -23,9 +23,9 @@ export const topics: Topic[] = [
 ### Typical Topology
 \`\`\`mermaid
 flowchart LR
-  A[Access Switch] -- VLAN 10/20 --> D[Distribution]
-  B[Access Switch] -- VLAN 10/20 --> D
-  D -- 802.1Q trunk --> C[Core]
+  A[Access Switch] -- "VLAN 10/20" --> D[Distribution]
+  B[Access Switch] -- "VLAN 10/20" --> D
+  D -- "802.1Q trunk" --> C[Core]
 \`\`\`
 
 ### Pitfalls
@@ -38,6 +38,116 @@ flowchart LR
       'switchport mode trunk',
       'switchport trunk allowed vlan 10,20',
     ],
+  },
+  {
+    id: 'osi-layers',
+    title: 'OSI Layers (1–7)',
+    summary: 'Overview of functions, typical devices, and examples from Physical up to Application.',
+    markdown: `
+### Stack Overview
+
+| Layer | Name         | Key Functions                              | Examples / Devices |
+|-----: |--------------|---------------------------------------------|--------------------|
+| 7     | Application  | User-facing protocols, app services         | HTTP, DNS, SSH     |
+| 6     | Presentation | Encoding, compression, encryption           | TLS, JPEG, JSON    |
+| 5     | Session      | Sessions, dialogs, checkpoints              | RPC, NetBIOS       |
+| 4     | Transport    | End-to-end transport, reliability, flow     | TCP, UDP           |
+| 3     | Network      | Logical addressing, routing, fragmentation  | IP, OSPF, EIGRP    |
+| 2     | Data Link    | Framing, MAC, switching, VLAN, STP          | Ethernet, 802.1Q   |
+| 1     | Physical     | Bits on the wire, signaling, media          | Fiber, UTP, 1000BASE-T |
+
+### Notes
+- Layer 2 handles MAC addressing, switching, VLAN tagging, and loop prevention (STP/RSTP/MST).
+- Layer 3 provides IP addressing and routing between subnets/VLANs (SVIs, router-on-a-stick, OSPF/OSPFv3).
+- Layer 4 uses TCP/UDP; QoS often matches traffic to transport characteristics.
+- Layers 5–7 are often collapsed in modern stacks but are useful for troubleshooting.
+
+### Visual
+\`\`\`mermaid
+flowchart TB
+  L7[7 Application] --> L6[6 Presentation]
+  L6 --> L5[5 Session]
+  L5 --> L4[4 Transport]
+  L4 --> L3[3 Network]
+  L3 --> L2[2 Data Link]
+  L2 --> L1[1 Physical]
+  classDef app fill:#e8eaff,stroke:#6366f1,color:#0f172a;
+  classDef net fill:#e0f2fe,stroke:#0284c7,color:#0f172a;
+  class L7,L6,L5 app;
+  class L4,L3,L2,L1 net;
+\`\`\`
+`,
+  },
+  {
+    id: 'ipv4-subnet',
+    title: 'IPv4 Classes and Subnetting',
+    summary: 'Classful address overview (A/B/C/D/E), private ranges, CIDR, and quick subnet math.',
+    markdown: `
+### Classful Ranges (historical)
+
+| Class | First Octet | Default Mask | Networks | Hosts/Net |
+|------:|-------------:|--------------|---------:|----------:|
+| A     | 1–126        | 255.0.0.0    |   126    | 16,777,214 |
+| B     | 128–191      | 255.255.0.0  | 16,384   |     65,534 |
+| C     | 192–223      | 255.255.255.0| 2,097,152|        254 |
+| D     | 224–239      | N/A (Multicast) | —    | — |
+| E     | 240–255      | Reserved     | —        | — |
+
+Private ranges:
+- Class A: 10.0.0.0/8
+- Class B: 172.16.0.0/12
+- Class C: 192.168.0.0/16
+
+### CIDR and Subnetting
+- CIDR uses prefix length instead of classes (e.g., 192.168.10.0/24)
+- Subnet mask ↔ prefix: /24 = 255.255.255.0, /25 = 255.255.255.128, /26 = 255.255.255.192, /30 = 255.255.255.252
+- Hosts per subnet ≈ 2^(host\_bits) − 2 (network/broadcast)
+- Wildcard mask for ACL/OSPF: invert the subnet mask (e.g., 255.255.255.0 → 0.0.0.255)
+- VLSM: choose different prefix lengths per subnet to reduce waste
+
+### Quick Examples
+- 10.0.0.0/16 → 255.255.0.0, hosts: 2^(16)−2 = 65,534
+- 192.168.1.0/26 → 255.255.255.192, block size 64, subnets: .0, .64, .128, .192
+- OSPF wildcard for /24 on 192.168.10.0 is 0.0.0.255 → \`network 192.168.10.0 0.0.0.255 area 0\`
+
+### Visual
+\`\`\`mermaid
+flowchart LR
+  A[Class A\n1–126]:::a -->|/8| H1[Host bits 24]
+  B[Class B\n128–191]:::b -->|/16| H2[Host bits 16]
+  C[Class C\n192–223]:::c -->|/24| H3[Host bits 8]
+  classDef a fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
+  classDef b fill:#e0f2fe,stroke:#0284c7,color:#0f172a;
+  classDef c fill:#dcfce7,stroke:#16a34a,color:#0f172a;
+\`\`\`
+`,
+  },
+  {
+    id: 'ha-chassis',
+    title: 'High Availability (HA) and Chassis',
+    summary: 'Reduce single points of failure using redundancy, stacks, and supervisor switchover modes.',
+    markdown: `
+### Basics of HA
+- Each layer (Access/Distribution/Core) should have ≥2 devices
+- Use redundant links to protect from single link failures
+- Some platforms form a logical switch from two chassis (system sees 1)
+
+### Technologies
+- StackWise/StackWise Plus (Access): stack multiple switches with special cables; single control plane (same IP)
+- VSS (Distribution/Core): two chassis act as one switch using virtual links; one active supervisor, one standby
+
+### Chassis Elements
+- Supervisor Engine (Route Processor), Line Cards, PSU, Cooling, Backplane/Midplane, Fabric Module, Redundant components, Rack
+
+### Supervisor Redundancy Modes
+- RPR: Standby initializes after fail — convergence in tens of seconds
+- RPR+: Faster than RPR — some state preserved
+- SSO: Stateful Switchover — sub‑second switchover; with NSF, routing adjacencies survive
+
+### NSF (Nonstop Forwarding)
+- Works with SSO to keep forwarding during control‑plane failover
+- Routing protocols (BGP, EIGRP, OSPF, IS‑IS) re‑learn control state without dropping data plane
+`,
   },
   {
     id: 'enterprise-design',
@@ -94,8 +204,10 @@ flowchart TB
 ### Diagram
 \`\`\`mermaid
 flowchart LR
-  A[Switch A] == LACP bundle == B[Switch B]
-  A -. member gi0/1, gi0/2 .- B
+  A[Switch A] -- "LACP bundle (Po1)" --- B[Switch B]
+  %% Members (conceptual)
+  A -- gi0/1 --- B
+  A -- gi0/2 --- B
 \`\`\`
 `,
     keyCommands: [
@@ -141,6 +253,18 @@ flowchart LR
 - Set logging host and severity
 - Configure SNMP community or v3 users
 - Export flows to a collector
+
+### NTP
+- Synchronize device clocks; pick the lowest stratum source available
+
+### SNMPv3 Security Levels
+- noAuthNoPriv: no authentication or encryption
+- authNoPriv: authentication only
+- authPriv: authentication and encryption
+
+### Traffic Monitoring
+- SPAN: local port mirroring within a switch
+- RSPAN: remote mirroring via a special VLAN across multiple switches
 `,
     keyCommands: [
       'logging host 10.10.10.10',
@@ -154,9 +278,15 @@ flowchart LR
     title: 'WLAN Integration',
     summary: 'Centralized WLAN controllers with APs, VLAN anchoring, and QoS for voice/data SSIDs.',
     markdown: `
-### Modes
-- Local mode APs tunnel to WLC
-- FlexConnect for branch survivability
+### Modes of WLAN
+- Ad‑Hoc (IBSS): peer‑to‑peer without AP
+- Infrastructure (BSS): AP is central
+- ESS: multiple APs on LAN providing extended service set
+*Association* is the process of a client joining an AP.
+
+### AP Operation
+- Bridge wired to wireless; map SSIDs to VLANs (e.g., SSID "Corp" → VLAN 60)
+- Plan AP cells with slight overlap for roaming (honeycomb pattern works well)
 
 ### VLAN/SSID
 - Map SSIDs to VLANs; trunk to AP switch ports
@@ -171,6 +301,20 @@ flowchart LR
     V20[VLAN 20 - Guest]
   end
 \`\`\`
+
+### WLAN Structure
+- Autonomous: standalone APs, simpler but limited scale
+- CUWN (Unified/WLC): lightweight APs (LAPs) controlled by WLC
+
+### CUWN Principles
+- LAP forwards control/data to WLC; roles split (L1‑2 association on LAP, L3+/security/config on WLC)
+- Control plane uses CAPWAP; WLC and LAP authenticate (e.g., X.509)
+- WLC can auto manage: channel/power, load balance, roaming aids, intrusion/rogue AP detection, RF monitoring
+
+### Roaming
+- Autonomous: client tears down and reassociates to new AP
+- CUWN: intra‑controller roaming under one WLC; inter‑controller roaming across WLCs
+- L2 roaming: same VLAN/subnet; L3 roaming: new VLAN/subnet with tunneling to preserve IP
 `,
     keyCommands: [
       'mls qos trust cos (AP trunk)',
@@ -236,7 +380,7 @@ sequenceDiagram
 flowchart LR
   A[Host VLAN 10] --> S((SW))
   B[Host VLAN 20] --> S
-  S -- SVI V10/V20 --> R((L3))
+  S -- "SVI V10/V20" --> R((L3))
   R --> Internet
 \`\`\`
 
@@ -301,6 +445,17 @@ sequenceDiagram
 
 ### Tunables
 - Preempt, priority, authentication
+
+### Protocols
+- HSRP (Cisco), VRRP (IETF RFC5798), GLBP (Cisco load‑balancing)
+
+### HSRP Behavior
+- One Active and one Standby; hosts use Virtual IP and MAC
+- On failover, Standby takes Active role; hosts learn via gratuitous ARP
+
+### Choosing Active
+- Highest priority wins (default 100). If equal, highest router IP.
+- Enable preempt so a higher‑priority router can take over when it returns
 `,
     keyCommands: [
       'interface vlan 10',
@@ -314,14 +469,59 @@ sequenceDiagram
     title: 'DHCP and Snooping',
     summary: 'Central IP assignment and protection from rogue servers.',
     markdown: `
-### DHCP Pool
-- Gateway, DNS, lease timers
+### What DHCP Provides
+- IP address
+- Subnet mask
+- Default gateway
+- DNS server(s)
+
+### Operation (DORA)
+- Discover: client broadcasts to find a DHCP server
+- Offer: server proposes an address/lease to the client
+- Request: client requests the offered address
+- Ack: server confirms and records the lease
+
+\`\`\`mermaid
+sequenceDiagram
+  participant C as Client
+  participant S as DHCP Server
+  C-->>S: Discover (broadcast)
+  S-->>C: Offer (IP proposal)
+  C-->>S: Request (accept)
+  S-->>C: Ack (approve)
+\`\`\`
+
+### DHCP Relay (IP Helper Address)
+- When the DHCP server lives in another VLAN/subnet, configure \`ip helper-address\` on the SVI to forward requests.
+- For multiple servers, add multiple helper addresses.
+
+### IPv6 and SLAAC
+- SLAAC can assign IPv6 addresses from Router Advertisements (no DHCPv6 required).
+- DHCPv6 can still provide addressing and options when needed.
+
+### Configure (example IPv4)
+- Exclude static range
+  - \`ip dhcp excluded-address 192.168.1.1 192.168.1.2\`
+- Create a pool
+  - \`ip dhcp pool ISNEPoolVlan\`
+  - \`network 192.168.1.0 255.255.255.0\`
+  - \`default-router 192.168.1.1\`
+- Verify leases: \`show ip dhcp binding\`
+- Relay on SVI
+  - \`interface vlan 10\`
+  - \`ip address 10.10.10.1 255.255.255.0\`
+  - \`ip helper-address 10.10.20.2\`
+
 ### Snooping
 - Trust only uplinks; untrusted access ports blocked for rogue offers
 `,
     keyCommands: [
-      'ip dhcp pool VLAN10',
-      'default-router 192.168.10.1',
+      'ip dhcp excluded-address 192.168.1.1 192.168.1.2',
+      'ip dhcp pool ISNEPoolVlan',
+      'network 192.168.1.0 255.255.255.0',
+      'default-router 192.168.1.1',
+      'show ip dhcp binding',
+      'interface vlan 10\n ip helper-address 10.10.20.2',
       'ip dhcp snooping',
       'ip dhcp snooping vlan 10',
       'interface gi0/1\n ip dhcp snooping trust',
@@ -332,9 +532,32 @@ sequenceDiagram
     title: 'QoS Basics',
     summary: 'Prioritize important traffic; mark at Layer 2 (CoS) or Layer 3 (DSCP).',
     markdown: `
-### Marking
+### Goals
+- Reduce delay, jitter, and packet loss for critical apps
+
+### Models
+- Best Effort: FIFO, no guarantees
+- IntServ: hard QoS with reserved flows
+- DiffServ: soft QoS, class‑based (widely used)
+
+### Class of Service (CoS)
+- Layer 2 802.1Q tag has 3‑bit PCP (0–7) to indicate priority
+
+### ToS / DSCP
+- ToS (IPv4) replaced by DSCP (top 6 bits, values 0–63) used in DiffServ
+
+### Assured Forwarding (AF)
+- AFxy classes with drop precedence (y). Example: AF31/AF32/AF33
+
+### Principles
+1) Classification & Marking — set DSCP/CoS
+2) Shaping & Policing — shape smooths; police cuts excess
+3) Congestion Mgmt — FIFO, WRR, PQ, CQ
+4) Congestion Avoidance — Tail‑Drop, WRED
+
+### Marking at the Edge
 - Access edge marks based on app/port/ACL
-- Trust at trunk boundaries when needed
+- Trust at trunk boundaries when appropriate
 `,
     keyCommands: [
       'mls qos',
