@@ -1,5 +1,6 @@
 import Quiz from '../components/Quiz'
 import { quizBasics } from '../data/quizzes'
+import { Link } from 'react-router-dom'
 
 export default function Home() {
   return (
@@ -13,10 +14,10 @@ export default function Home() {
               Learn faster with clean summaries, interactive diagrams, hands-on labs, and quick quizzes — all aligned to your coursework.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <a href="/learn" className="rounded-md bg-white px-4 py-2 font-medium text-slate-900 hover:bg-white/90">Start Learning</a>
-              <a href="/quiz" className="rounded-md bg-white/10 px-4 py-2 font-medium text-white ring-1 ring-white/40 hover:bg-white/15">Take a Quiz</a>
-              <a href="/labs" className="rounded-md bg-white/10 px-4 py-2 font-medium text-white ring-1 ring-white/40 hover:bg-white/15">Practice Labs</a>
-              <a href="/commands" className="rounded-md bg-white/10 px-4 py-2 font-medium text-white ring-1 ring-white/40 hover:bg-white/15">Command Cheatsheet</a>
+              <Link to="/learn" className="rounded-md bg-white px-4 py-2 font-medium text-slate-900 hover:bg-white/90">Start Learning</Link>
+              <Link to="/quiz" className="rounded-md bg-white/10 px-4 py-2 font-medium text-white ring-1 ring-white/40 hover:bg-white/15">Take a Quiz</Link>
+              <Link to="/labs" className="rounded-md bg-white/10 px-4 py-2 font-medium text-white ring-1 ring-white/40 hover:bg-white/15">Practice Labs</Link>
+              <Link to="/commands" className="rounded-md bg-white/10 px-4 py-2 font-medium text-white ring-1 ring-white/40 hover:bg-white/15">Command Cheatsheet</Link>
             </div>
           </div>
           <div className="flex-1">
@@ -34,25 +35,25 @@ export default function Home() {
 
       {/* Sections */}
       <section className="grid gap-4 sm:grid-cols-3">
-        <a href="/learn" className="rounded-xl border bg-white p-5 shadow-sm hover:shadow">
+        <Link to="/learn" className="rounded-xl border bg-white p-5 shadow-sm hover:shadow">
           <div className="text-lg font-semibold">Learn</div>
           <p className="mt-1 text-sm text-slate-600">Concise topics with Mermaid diagrams and key commands.</p>
-        </a>
-        <a href="/quiz" className="rounded-xl border bg-white p-5 shadow-sm hover:shadow">
+        </Link>
+        <Link to="/quiz" className="rounded-xl border bg-white p-5 shadow-sm hover:shadow">
           <div className="text-lg font-semibold">Quiz</div>
           <p className="mt-1 text-sm text-slate-600">Core and advanced questions to test understanding.</p>
-        </a>
-        <a href="/labs" className="rounded-xl border bg-white p-5 shadow-sm hover:shadow">
+        </Link>
+        <Link to="/labs" className="rounded-xl border bg-white p-5 shadow-sm hover:shadow">
           <div className="text-lg font-semibold">Labs</div>
           <p className="mt-1 text-sm text-slate-600">Type configs for VLANs, STP, DHCP, HSRP, OSPF, and more.</p>
-        </a>
+        </Link>
       </section>
 
       {/* Inline quiz teaser */}
       <section className="rounded-2xl border bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Quick Quiz</h2>
-          <a href="/quiz" className="text-sm font-medium text-indigo-700 hover:underline">See all</a>
+          <Link to="/quiz" className="text-sm font-medium text-indigo-700 hover:underline">See all</Link>
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <div>

@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Mermaid from '../components/Mermaid'
 import { topics } from '../content/topics'
+import { Link } from 'react-router-dom'
 // @ts-ignore - Vite raw import for external markdown
 import finaleMd from '../../content/finale.md?raw'
 
@@ -36,7 +37,7 @@ export default function Learn() {
               placeholder="Search topics, commands, keywords..."
               className="w-full rounded-md bg-white/95 px-3 py-2 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-white/60"
             />
-            <a href="/commands" className="inline-flex items-center justify-center rounded-md bg-white/10 px-4 py-2 text-white ring-1 ring-white/40 hover:bg-white/15">Commands</a>
+            <Link to="/commands" className="inline-flex items-center justify-center rounded-md bg-white/10 px-4 py-2 text-white ring-1 ring-white/40 hover:bg-white/15">Commands</Link>
           </div>
         )}
       </header>

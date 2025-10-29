@@ -7,7 +7,7 @@ import Commands from './pages/Commands'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen bg-sky-50 text-slate-900">
         <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
