@@ -28,5 +28,10 @@
                     "preview":  "vite preview",
                     "summarize":  "node scripts/summarize-pdfs.mjs",
                     "extract:finale":  "node scripts/extract-finale.mjs"
-                }
+                },
+    "repository":  {
+                       "type":  "git",
+                       "url":  ""
+                   },
+    "license":  "MIT"
 }
