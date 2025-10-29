@@ -1,11 +1,19 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* App theme tweaks */
+/* App theme: light blue */
 @theme {
-  --color-brand: #4f46e5; /* indigo-600 */
+  --color-brand: #0ea5e9; /* sky-500 */
+  --color-brand-600: #0284c7; /* sky-600 */
+  --color-brand-700: #0369a1; /* sky-700 */
 }
 
-/* Utility: gradient header background helper */
-.bg-brand-gradient { @apply bg-gradient-to-r from-indigo-600 to-violet-600; }
+/* Utilities */
+.bg-brand-gradient { @apply bg-gradient-to-r from-sky-500 to-blue-600; }
+.btn-primary { @apply rounded-md bg-sky-600 px-4 py-2 font-medium text-white hover:bg-sky-700; }
+.card { @apply rounded-xl border bg-white p-5 shadow-sm; }
 
+/* Mermaid tweaks */
+.mermaid svg { width: 100%; height: auto; }
+.mermaid .edgeLabel { fill: #0f172a; }
+.mermaid .label { color: #0f172a; }

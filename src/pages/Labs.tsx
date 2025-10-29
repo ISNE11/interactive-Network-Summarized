@@ -5,9 +5,11 @@ type Scenario = {
   title: string
   description: string
   prompt: string
-  expected: RegExp[] // commands to match (case-insensitive)
+  expected: RegExp[] // IPv4 checks
+  expectedV6?: RegExp[] // IPv6 checks (optional)
   hint?: string
-  sampleSolution: string
+  sampleSolution: string // IPv4 sample
+  sampleSolutionV6?: string // IPv6 sample
 }
 
 const scenarios: Scenario[] = [
@@ -30,14 +32,21 @@ const scenarios: Scenario[] = [
     id: 'intervlan-svi',
     title: 'Inter-VLAN Routing (SVI)',
     description: 'Create SVI for VLAN 10 and enable L3 routing.',
-    prompt: 'Provide commands to create SVI VLAN10 with 192.168.10.1/24 and enable routing.',
+    prompt: 'Provide commands to create SVI VLAN10 and enable routing (IPv4 or IPv6).',
     expected: [
       /^interface\s+vlan\s+10$/i,
       /^ip\s+address\s+192\.168\.10\.1\s+255\.255\.255\.0$/i,
       /^no\s+shutdown$/i,
       /^ip\s+routing$/i,
     ],
+    expectedV6: [
+      /^interface\s+vlan\s+10$/i,
+      /^ipv6\s+address\s+2001:db8:10::1\/64$/i,
+      /^no\s+shutdown$/i,
+      /^ipv6\s+unicast-routing$/i,
+    ],
     sampleSolution: 'interface vlan 10\nip address 192.168.10.1 255.255.255.0\nno shutdown\nip routing',
+    sampleSolutionV6: 'interface vlan 10\nipv6 address 2001:db8:10::1/64\nno shutdown\nipv6 unicast-routing',
   },
   {
     id: 'stp-root',
@@ -66,7 +75,7 @@ const scenarios: Scenario[] = [
   {
     id: 'fhrp-hsrp',
     title: 'HSRP Gateway',
-    description: 'Configure HSRP group 1 on VLAN 10, virtual IP 192.168.10.1.',
+    description: 'Configure HSRP group 1 on VLAN 10 (IPv4 or IPv6 virtual gateway).',
     prompt: 'Provide commands under SVI to set HSRP with preempt.',
     expected: [
       /^interface\s+vlan\s+10$/i,
@@ -74,38 +83,52 @@ const scenarios: Scenario[] = [
       /^standby\s+1\s+priority\s+\d+$/i,
       /^standby\s+1\s+preempt$/i,
     ],
+    expectedV6: [
+      /^interface\s+vlan\s+10$/i,
+      /^standby\s+1\s+ipv6\s+[0-9a-f:]+/i,
+      /^standby\s+1\s+priority\s+\d+$/i,
+      /^standby\s+1\s+preempt$/i,
+    ],
     sampleSolution: 'interface vlan 10\n standby 1 ip 192.168.10.1\n standby 1 priority 110\n standby 1 preempt',
+    sampleSolutionV6: 'interface vlan 10\n standby 1 ipv6 2001:db8:10::1\n standby 1 priority 110\n standby 1 preempt',
   },
   {
     id: 'ospf-basic',
     title: 'OSPF Single Area',
-    description: 'Enable OSPF area 0 on interfaces in 10.0.0.0/24 and 172.16.0.0/24.',
-    prompt: 'Provide OSPF process 1 with matching network statements.',
+    description: 'Enable OSPF area 0 (OSPFv2 for IPv4 or OSPFv3 for IPv6).',
+    prompt: 'Provide OSPF process 1 (IPv4: router ospf + network; IPv6: ipv6 router ospf + per-interface area).',
     expected: [
       /^router\s+ospf\s+1$/i,
       /^network\s+10\.0\.0\.0\s+0\.0\.0\.255\s+area\s+0$/i,
       /^network\s+172\.16\.0\.0\s+0\.0\.0\.255\s+area\s+0$/i,
     ],
+    expectedV6: [
+      /^ipv6\s+router\s+ospf\s+1$/i,
+      /^ipv6\s+ospf\s+1\s+area\s+0$/i,
+    ],
     sampleSolution: 'router ospf 1\n network 10.0.0.0 0.0.0.255 area 0\n network 172.16.0.0 0.0.0.255 area 0',
+    sampleSolutionV6: 'ipv6 router ospf 1\n interface vlan 10\n  ipv6 ospf 1 area 0',
   },
 ]
 
 export default function Labs() {
   const [active, setActive] = useState<Scenario>(scenarios[0])
   const [input, setInput] = useState('')
+  const [ipMode, setIpMode] = useState<'ipv4' | 'ipv6'>('ipv4')
 
   const results = useMemo(() => {
     const lines = input.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
-    const matched = active.expected.map(re => lines.some(l => re.test(l)))
+    const checks = ipMode === 'ipv6' && active.expectedV6 ? active.expectedV6 : active.expected
+    const matched = checks.map(re => lines.some(l => re.test(l)))
     const score = matched.filter(Boolean).length
-    return { matched, score, total: active.expected.length }
-  }, [input, active])
+    return { matched, score, total: checks.length }
+  }, [input, active, ipMode])
 
   return (
     <div className="space-y-6">
       <header className="rounded-xl bg-brand-gradient p-6 text-white shadow">
         <h1 className="text-2xl font-bold">CLI Labs</h1>
-        <p className="mt-1 text-white/90">Practice typing real configs. We check for required lines using regex patterns.</p>
+        <p className="mt-1 text-white/90">Practice typing real configs. Choose IPv4 or IPv6 and get instant feedback.</p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -126,6 +149,17 @@ export default function Labs() {
           <div className="rounded-lg border bg-white p-4">
             <div className="mb-2 text-lg font-semibold">{active.title}</div>
             <p className="text-slate-600">{active.prompt}</p>
+            <div className="mt-3 flex items-center gap-2 text-sm">
+              <span className="text-slate-600">IP Mode:</span>
+              <button
+                className={`rounded border px-2 py-1 ${ipMode==='ipv4' ? 'bg-sky-600 text-white' : 'hover:bg-slate-50'}`}
+                onClick={() => { setIpMode('ipv4'); setInput('') }}
+              >IPv4</button>
+              <button
+                className={`rounded border px-2 py-1 ${ipMode==='ipv6' ? 'bg-sky-600 text-white' : 'hover:bg-slate-50'}`}
+                onClick={() => { setIpMode('ipv6'); setInput('') }}
+              >IPv6</button>
+            </div>
 
             <textarea
               value={input}
@@ -136,7 +170,7 @@ export default function Labs() {
 
             <div className="mt-4 flex items-center gap-3 text-sm">
               <span className="rounded bg-slate-900 px-2 py-1 font-medium text-white">Score {results.score}/{results.total}</span>
-              <button className="rounded border px-2 py-1 hover:bg-slate-50" onClick={() => setInput(active.sampleSolution)}>
+              <button className="rounded border px-2 py-1 hover:bg-slate-50" onClick={() => setInput(ipMode==='ipv6' ? (active.sampleSolutionV6 || active.sampleSolution) : active.sampleSolution)}>
                 Fill Sample
               </button>
               <button className="rounded border px-2 py-1 hover:bg-slate-50" onClick={() => setInput('')}>
@@ -145,7 +179,7 @@ export default function Labs() {
             </div>
 
             <ul className="mt-3 space-y-1 text-sm">
-              {active.expected.map((re, i) => (
+              {(ipMode==='ipv6' && active.expectedV6 ? active.expectedV6 : active.expected).map((re, i) => (
                 <li key={i} className="flex items-center gap-2">
                   <span className={`inline-block h-2 w-2 rounded-full ${results.matched[i] ? 'bg-emerald-600' : 'bg-slate-300'}`} />
                   <code className="text-slate-700">{re.toString()}</code>
@@ -158,4 +192,3 @@ export default function Labs() {
     </div>
   )
 }
-
