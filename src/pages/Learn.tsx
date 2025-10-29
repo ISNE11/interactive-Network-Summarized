@@ -92,10 +92,12 @@ function MarkdownWithMermaid({ content }: { content: string }) {
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
-        code({ inline, className, children }) {
+        code(props) {
+          const { className, children } = props as any
           const txt = String(children)
           const lang = (className || '').replace('language-', '')
-          if (!inline && lang === 'mermaid') {
+          const isBlock = !!className
+          if (isBlock && lang === 'mermaid') {
             return <Mermaid chart={txt} />
           }
           return <code className={className}>{children}</code>

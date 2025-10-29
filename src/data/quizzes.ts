@@ -1,4 +1,4 @@
-import { QuizQuestion } from '../components/Quiz'
+import type { QuizQuestion } from '../components/Quiz'
 
 export const quizBasics: QuizQuestion[] = [
   {
